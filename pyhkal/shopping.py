@@ -36,7 +36,8 @@ class ShoppingMall(object):
         mod = sys.modules.setdefault(fullname, imp.new_module(fullname))
         loader = pkgutil.ImpLoader(
             fullname, *imp.find_module(name, list(self.get_paths())))
-        from pyhkal.api import api
+        from pyhkal.api import Api
+        api = Api()
         mod.__dict__.update(api)
         mod.__loader__ = self
         mod.__file__ = loader.get_filename()

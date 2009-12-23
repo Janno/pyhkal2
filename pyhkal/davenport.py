@@ -13,34 +13,32 @@ REMEMBER = 'config'
 
 import couchdb.client
 
-_sofa = None
+class Davenport(object):
+    def __init__(self, location=None):
+        """Create a davenport storing your documents. `location` can be used to
+        occupy a remote davenport. Otherwise use your local desk.
 
-def use(location=None):
-    """Start storing your documents in a davenport. `location` can be used to occupy a
-    remote davenport. Otherwise use your local desk.
+        """
+        server = couchdb.client.Server(location or couchdb.client.DEFAULT_BASE_URI)
+        try:
+            self._sofa = server[DATABASE]
+        except couchdb.client.ResourceNotFound:
+            self._sofa = server.create(DATABASE)
 
-    """
-    global _sofa
-    server = couchdb.client.Server(location or couchdb.client.DEFAULT_BASE_URI)
-    try:
-        _sofa = server[DATABASE]
-    except couchdb.client.ResourceNotFound:
-        _sofa = server.create(DATABASE)
+    def get_by_label(self, label):
+        return self._sofa[label]
 
-_none = object()
-def remember(breadcrumbs, default=_none):
-    """Remember that random fact that popped into your head 2 AM in the
-    morning. For some weird reason, you need a sofa to remember.
+    _none = object()
+    def remember(self, breadcrumbs, default=_none):
+        """Remember that random fact that popped into your head 2 AM in the
+        morning. For some weird reason, you need a sofa to remember.
 
-    """
-    config = get_by_label(REMEMBER)
-    try:
-        return reduce(lambda doc, value: doc[value],
-                breadcrumbs.split(), config)
-    except KeyError:
-        if default is not _none:
-            return default
-        raise
-
-def get_by_label(label):
-    return _sofa[label]
+        """
+        config = self.get_by_label(REMEMBER)
+        try:
+            return reduce(lambda doc, value: doc[value],
+                    breadcrumbs.split(), config)
+        except KeyError:
+            if default is not self._none:
+                return default
+            raise

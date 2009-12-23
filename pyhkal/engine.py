@@ -5,8 +5,8 @@ import collections
 import weakref
 from _weakrefset import WeakSet
 from twisted.internet import reactor
-import pyhkal.davenport as davenport
-import pyhkal.shopping as shopping
+import pyhkal.davenport
+import pyhkal.shopping
 
 listeners = collections.defaultdict(WeakSet)
 #+ support subcommands
@@ -15,9 +15,9 @@ commands = weakref.WeakValueDictionary()
 
 def run(location=None):
     """Run PyHKAL on a CouchDB available at `location`."""
-    davenport.use(location)
+    davenport = pyhkal.davenport.Davenport(location)
     for mod in davenport.remember("modules"):
-        shopping.buy(mod)
+        pyhkal.shopping.buy(mod)
     dispatch_event("startup")
     reactor.run()
 
